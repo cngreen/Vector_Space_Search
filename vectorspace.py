@@ -159,17 +159,17 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 		else:
 			query_tfidf[term] = query_index[term] * idf[term]
 
-	# docs_to_search = {}
+	docs_to_search = {}
 
-	# for term in query_index.keys():
-	# 	if term in inverted_index.keys():
-	# 		for doc in inverted_index[term].keys():
-	# 			if doc not in docs_to_search.keys():
-	# 				docs_to_search[doc] = doc_tfidf[doc]
+	for term in query_index.keys():
+		if term in inverted_index.keys():
+			for doc in inverted_index[term].keys():
+				if doc not in docs_to_search.keys():
+					docs_to_search[doc] = doc_tfidf[doc]
 
-	relevant_docs = cosine_similarity(query_tfidf, doc_tfidf)
+	relevant_docs = cosine_similarity(query_tfidf, docs_to_search)
 
-	sorted_relevant_docs = sorted(relevant_docs.iteritems(), key=operator.itemgetter(1), reverse=True)[:10]
+	sorted_relevant_docs = sorted(relevant_docs.iteritems(), key=operator.itemgetter(1), reverse=True)
 
 	return sorted_relevant_docs
 #----------------------------------------------------------------------------------------------------------------------------------------
@@ -183,9 +183,11 @@ def main():
 	input_folder = ''
 	query_file = ''
 
+	output = ''
+
 	docCount = 0
 
-	print 'Argument List:', str(sys.argv)
+	#print 'Argument List:', str(sys.argv)
 	
 	try: 
 		weighting_scheme_docs = str(sys.argv[1])
@@ -219,6 +221,8 @@ def main():
 	tf = normalize_term_frequency(inverted_index, max_f)
 	idf = calc_inverse_document_frequency(inverted_index, docCount)
 
+	doc_tfidf = find_doc_tfidf(inverted_index, docCount)
+
 
 	# *** STEP THREE: ----------------------------------------------------------
 	# open the file with queries, provided as the fourth argument on the command line (e.g.,
@@ -231,10 +235,12 @@ def main():
 		queryID = temp[0] 
 		query = "".join(str(i) + " " for i in temp[1:])
 
-		doc_tfidf = find_doc_tfidf(inverted_index, docCount)
 		relDocs = retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, docCount, doc_tfidf)
 
-		print('***', queryID, relDocs)
+		print(queryID, relDocs)
+
+		for doc in relDocs:
+			output = str(queryID) + ' ' + str(doc[0]) + ' ' + str(doc[1]) + '\n'
 
 
 	#Prepare and print output --------------------------------------------------------------------
@@ -242,7 +248,6 @@ def main():
 	#print(output_filename)
 	targetFile = open(output_filename, 'w+')
 
-	output = "my output" + '\n'
 	targetFile.write(output)
 
 
