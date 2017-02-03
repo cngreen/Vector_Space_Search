@@ -237,10 +237,10 @@ def main():
 
 		relDocs = retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, docCount, doc_tfidf)
 
-		print(queryID, relDocs)
+		print(queryID)
 
 		for doc in relDocs:
-			output = str(queryID) + ' ' + str(doc[0]) + ' ' + str(doc[1]) + '\n'
+			output += str(queryID) + ' ' + str(doc[0]) + ' ' + str(doc[1]) + '\n'
 
 
 	#Prepare and print output --------------------------------------------------------------------
