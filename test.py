@@ -73,36 +73,77 @@ def find_max_term_frequency(inverted_index):
 
 	return max_f
 
+def test(input):
+
+	tokens = prepareString(input)
+
+	query_index = {}
+
+	for index in range(len(tokens)):
+		if tokens[index] not in query_index.keys():
+			query_index[tokens[index]] = 1.0
+		else:
+			query_index[tokens[index]] += 1.0
+
+	maximum_freq_query = max([i for i in query_index.values()]) 
+
+	#adjust for repeated words in query
+	for term in query_index.keys():
+		query_index[term] = (query_index[term] / maximum_freq_query)
+
+	print(maximum_freq_query)
+
+	return query_index
+
+def cosine_similarity(query_tfidf):
+	similarity = 0
+
+	length_q = 0
+
+	for term in query_tfidf.keys():
+		# for each term in the query, sum the square of the tf-idf
+		# a^2 + b^2 ...
+		length_q += pow(query_tfidf[term], 2)
+
+	length_q = sqrt(length_q)
+
+	print(length_q)
+
+	return similarity
+
 #----------------------------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------------------------
 def main():
 	input = "here is a sentence i am trying to import"
 	input2 = "here is a secondary sentence sentence sentence sentence with changes changes changes i am trying to import"
 
-	inverted_index = {}
+	# inverted_index = {}
 
-	inverted_index = indexDocument(input, 69, inverted_index)
-	inverted_index = indexDocument(input2, 1738, inverted_index)
+	# inverted_index = indexDocument(input, 69, inverted_index)
+	# inverted_index = indexDocument(input2, 1738, inverted_index)
 
-	print(inverted_index)
+	# print(inverted_index)
 
-	term_frequency = {}
+	# term_frequency = {}
 
-	term_frequency = find_max_term_frequency(inverted_index)
+	# term_frequency = find_max_term_frequency(inverted_index)
 
-	print('***\n')
-	print(term_frequency)
+	# print('***\n')
+	# print(term_frequency)
 
-	print('+++\n')
-	inverted_index = normalize_term_frequency(inverted_index, term_frequency)
-	print(inverted_index)
+	# print('+++\n')
+	# inverted_index = normalize_term_frequency(inverted_index, term_frequency)
+	# print(inverted_index)
 
-	print('kkkk\n')
-	idf = calc_inverse_document_frequency(inverted_index, 2)
+	# print('kkkk\n')
+	# idf = calc_inverse_document_frequency(inverted_index, 2)
 
-	print(idf)
+	# print(idf)
 
+	query_index = test(input2)
+	print(query_index)
 
+	cosine_similarity(query_index)
 
 
 if __name__ == "__main__": 

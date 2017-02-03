@@ -76,8 +76,56 @@ def find_max_term_frequency(inverted_index):
 
 	return max_f
 
+def find_doc_tfidf(inverted_index, NDocs):
+	doc_tfidf = {}
+
+	max_f = find_max_term_frequency(inverted_index)
+
+	tf = normalize_term_frequency(inverted_index, max_f)
+	idf = calc_inverse_document_frequency(inverted_index, NDocs)
+
+	for term in inverted_index.keys():
+		for doc in inverted_index[term].keys():
+			if doc not in doc_tfidf.keys():
+				doc_tfidf[doc] =  {}
+				doc_tfidf[doc][term] = tf[term][doc] * idf[term]
+			else:
+				doc_tfidf[doc][term] = tf[term][doc] * idf[term]
+
+	return doc_tfidf
+
+def cosine_similarity(query_tfidf, doc_tfidf):
+	doc_similarity = {}
+
+	length_q = 0
+
+	for term in query_tfidf.keys():
+		# for each term in the query, sum the square of the tf-idf
+		# a^2 + b^2 ...
+		length_q += pow(query_tfidf[term], 2)
+
+	length_q = sqrt(length_q)
+
+	for doc in doc_tfidf.keys():
+		length_doc = 0
+		dot_product = 0
+		for term in doc_tfidf[doc].keys():
+			length_doc += pow(doc_tfidf[doc][term], 2)
+		length_doc = sqrt(length_doc)
+
+		for term in query_tfidf.keys():
+			if term in doc_tfidf[doc].keys():
+				dot_product += (query_tfidf[term] * doc_tfidf[doc][term])
+
+		if (length_q != 0 and length_doc != 0):
+			doc_similarity[doc] = dot_product/(length_q * length_doc)
+		else:
+			doc_similarity[doc] = 0
+
+	return doc_similarity
+
 #---------------------------------------------------------------------------
-def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, NDocs):
+def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, NDocs, doc_tfidf):
 	relevant_docs = {}
 
 	#preprocess the query
@@ -91,20 +139,35 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 		else:
 			query_index[tokens[index]] += 1.0
 
-	# determine metrics:
-	max_f = find_max_term_frequency(inverted_index)
+	maximum_freq_query = max([i for i in query_index.values()]) 
 
-	tf = normalize_term_frequency(inverted_index, max_f)
+	#adjust for repeated words in query
+	for term in query_index.keys():
+		query_index[term] = (query_index[term] / maximum_freq_query)
+
+	# # determine metrics:
+	# max_f = find_max_term_frequency(inverted_index)
+
+	# tf = normalize_term_frequency(inverted_index, max_f)
 	idf = calc_inverse_document_frequency(inverted_index, NDocs)
 
-	for term in query_index:
-		print(term)
+	query_tfidf = {}
+
+	for term in query_index.keys():
+		if term not in idf.keys():
+			query_tfidf[term] = 0
+		else:
+			query_tfidf[term] = query_index[term] * idf[term]
+
+	docs_to_search = {}
+
+	for term in query_index.keys():
 		if term in inverted_index.keys():
 			for doc in inverted_index[term].keys():
-				if doc not in relevant_docs.keys():
-					relevant_docs[doc] = tf[term][doc] * idf[term]
-				else:
-					relevant_docs[doc] += tf[term][doc] * idf[term]
+				if doc not in docs_to_search.keys():
+					docs_to_search[doc] = doc_tfidf[doc]
+
+	relevant_docs = cosine_similarity(query_tfidf, docs_to_search)
 
 	sorted_relevant_docs = sorted(relevant_docs.iteritems(), key=operator.itemgetter(1), reverse=True)[:10]
 
@@ -167,7 +230,8 @@ def main():
 		queryID = temp[0] 
 		query = "".join(str(i) + " " for i in temp[1:])
 
-		relDocs = retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, docCount)
+		doc_tfidf = find_doc_tfidf(inverted_index, docCount)
+		relDocs = retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, docCount, doc_tfidf)
 
 		print(queryID, relDocs)
 
