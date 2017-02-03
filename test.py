@@ -41,27 +41,8 @@ def indexDocument(input, docID, inverted_index):
 	
 	return inverted_index
 
-def identifyFormattedNumbers(input):
-	#finds formatted numbers
-	tokens = []
-	if '.' not in input and ',' not in input:
-		return input, tokens
-
-	match = re.findall(r'\s*\d+[[,\d+]*[.\d+]*]*\s*', input)
-	if match != None:
-		for m in match:
-			m = m.strip()
-			m = m.replace(',','')
-			tokens.append(m)
-		input = re.sub(r'\s*\d+[[,\d+]*[.\d+]*]*\s*', '', input)
-
-	match = re.findall(r'\s*\d+[,.]', input)
-	if match != None:
-		for m in match:
-			m = m.strip()
-			tokens.append(m)
-
-	return input, tokens
+def normalize_term_frequency(input):
+	
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------------------------
@@ -76,10 +57,11 @@ def main():
 	# inverted_index = indexDocument(input2, 1738, inverted_index)
 	# print(inverted_index)
 
-	formatted = "1,000  1000 a777 b9 100.0 777,787,787788, 67,873,292  67874292 100. 100, 10,000,"
+	formatted = " 1,000  1000 a777 b9 100.0  777,787,787788,  67,873,292 100 67874292  100.  100,  10,000, "
 
 	formatted, tokens = identifyFormattedNumbers(formatted)
 
+	print("output")
 	print(formatted)
 	print(tokens)
 

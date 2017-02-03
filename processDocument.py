@@ -336,13 +336,15 @@ def identifyFormattedNumbers(input):
 	if '.' not in input and ',' not in input:
 		return input, tokens
 
-	match = re.findall(r'\s*\d+[[,\d+]*[.\d+]*]*\s', input)
+	match = re.findall(r'\s\d+[[,\d+]*[.\d+]*]*[.,]*\s', input)
 	if match != None:
 		for m in match:
 			m = m.strip()
-			m = m.replace(',','') #remove commas so numbering format is consistent ie 1,000 = 1000
+			input = re.sub(m, ' ', input)
+			m = m.replace(',','')
+			if m.endswith('.'):
+				m = m[:-1]
 			tokens.append(m)
-		input = re.sub(r'\s*\d+[[,\d+]*[.\d+]*]*\s', '', input)
 
 	return input, tokens
 
