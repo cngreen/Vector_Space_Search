@@ -75,12 +75,13 @@ def find_max_term_frequency(inverted_index):
 		max_f[key] = max
 
 	return max_f
+
 #---------------------------------------------------------------------------
-def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query):
-	relevant_docs = []
+def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, NDocs):
+	relevant_docs = {}
 
 	#preprocess the query
-	tokens = prepareString(input)
+	tokens = prepareString(query)
 
 	query_index = {}
 
@@ -90,13 +91,24 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 		else:
 			query_index[tokens[index]] += 1.0
 
-	for term in query_index:
-		if term in inverted_index.keys():
-			for doc in inverted_index[term].keys:
-				if doc not in relevant_docs:
-					relevant_docs.append(doc)
+	# determine metrics:
+	max_f = find_max_term_frequency(inverted_index)
 
-	return relevant_docs
+	tf = normalize_term_frequency(inverted_index, max_f)
+	idf = calc_inverse_document_frequency(inverted_index, NDocs)
+
+	for term in query_index:
+		print(term)
+		if term in inverted_index.keys():
+			for doc in inverted_index[term].keys():
+				if doc not in relevant_docs.keys():
+					relevant_docs[doc] = tf[term][doc] * idf[term]
+				else:
+					relevant_docs[doc] += tf[term][doc] * idf[term]
+
+	sorted_relevant_docs = sorted(relevant_docs.iteritems(), key=operator.itemgetter(1), reverse=True)[:10]
+
+	return sorted_relevant_docs
 #----------------------------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------------------------
 def main():
@@ -148,10 +160,16 @@ def main():
 	# open the file with queries, provided as the fourth argument on the command line (e.g.,
 	# cranfield.queries), and read one query at a time from this file (each line is a query)
 	path2query = os.path.join(os.getcwd(), query_file)
-	lines = [line.rstrip('\n') for line in open(path2query)] #get all the text lines from the file
-	for line in lines:
-		temp = line.split()
-		print (temp)
+	queries = [line.rstrip('\n') for line in open(path2query)] #get all the text lines from the file
+	for query in queries:
+		# remove queryID from query
+		temp = query.split()
+		queryID = temp[0] 
+		query = "".join(str(i) + " " for i in temp[1:])
+
+		relDocs = retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, docCount)
+
+		print(queryID, relDocs)
 
 
 	#Prepare and print output --------------------------------------------------------------------
