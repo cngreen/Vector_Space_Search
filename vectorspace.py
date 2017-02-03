@@ -159,15 +159,15 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 		else:
 			query_tfidf[term] = query_index[term] * idf[term]
 
-	docs_to_search = {}
+	# docs_to_search = {}
 
-	for term in query_index.keys():
-		if term in inverted_index.keys():
-			for doc in inverted_index[term].keys():
-				if doc not in docs_to_search.keys():
-					docs_to_search[doc] = doc_tfidf[doc]
+	# for term in query_index.keys():
+	# 	if term in inverted_index.keys():
+	# 		for doc in inverted_index[term].keys():
+	# 			if doc not in docs_to_search.keys():
+	# 				docs_to_search[doc] = doc_tfidf[doc]
 
-	relevant_docs = cosine_similarity(query_tfidf, docs_to_search)
+	relevant_docs = cosine_similarity(query_tfidf, doc_tfidf)
 
 	sorted_relevant_docs = sorted(relevant_docs.iteritems(), key=operator.itemgetter(1), reverse=True)[:10]
 
@@ -202,6 +202,7 @@ def main():
 
 	for filename in os.listdir(path): #for all files in specified folder
 		docID = str(filename)
+		docID = re.sub(r'[a-zA-Z]*', '', docID)
 		docCount += 1
 
 		# *** STEP TWO: ----------------------------------------------------------
@@ -233,7 +234,7 @@ def main():
 		doc_tfidf = find_doc_tfidf(inverted_index, docCount)
 		relDocs = retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, docCount, doc_tfidf)
 
-		print(queryID, relDocs)
+		print('***', queryID, relDocs)
 
 
 	#Prepare and print output --------------------------------------------------------------------
