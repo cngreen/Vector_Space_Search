@@ -109,7 +109,7 @@ def main():
 
 
 # GET DATA FROM TFIDF WEIGHTING SCHEME
-	path = os.path.join(os.getcwd(), 'cranfield.tfidf.tfidf.output')
+	path = os.path.join(os.getcwd(), 'cranfield.tfidf.tfidf.output23')
 
 	tfidf_docs = {}
 	
@@ -141,7 +141,7 @@ def main():
 		else:
 			enhanced_docs[query_id].append(document)
 
-	path = os.path.join(os.getcwd(), 'cranfield.test.test.output')
+	path = os.path.join(os.getcwd(), 'cranfield.test.test.output23')
 
 	prob_docs = {}
 	

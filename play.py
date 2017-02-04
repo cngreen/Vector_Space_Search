@@ -80,7 +80,7 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 	# *** STEP THREE:----------------------------------------------------------------
 	# calculate the similarity between the query and each of the documents in this set, 
 	# using the given weighting schemes to calculate the document and the query term weights.
-	relevant_docs = cosine_similarity(query_tfidf, docs_to_search)
+	relevant_docs = calc_similarity(query_tfidf, docs_to_search)
 
 	sorted_relevant_docs = sorted(relevant_docs.iteritems(), key=operator.itemgetter(1), reverse=True)
 
@@ -195,6 +195,23 @@ def find_query_tfidf(query_index, idf):
 	return query_tfidf
 
 #---------------------------------------------------------------------------
+def calc_similarity(query_tfidf, doc_tfidf):
+	# FROM SALTON ARTICLE
+	# similarity = sum (w_query * w_doc)
+
+	doc_similarity = {}
+
+	for doc in doc_tfidf.keys():
+
+		for term in query_tfidf.keys():
+			dot_product = 0.0
+			if term in doc_tfidf[doc].keys():
+				dot_product += (query_tfidf[term] * doc_tfidf[doc][term])
+
+		doc_similarity[doc] = dot_product
+
+	return doc_similarity
+
 def cosine_similarity(query_tfidf, doc_tfidf):
 	# doc_similarity is a dictionary with:
 	# {key = doc; value = cosine_similarity}
