@@ -113,7 +113,7 @@ def find_max_term_frequency(inverted_index):
 	return max_f
 #---------------------------------------------------------------------------
 def augmented_normalize_term_frequency(inverted_index, max_f):
-	#normalizes the term frequency for each doc: tf = 0.5 + 0.5 (f/max{f})
+	#normalizes the term frequency for each doc: tf = (f/max{f})
 	for term in inverted_index.keys():
 		for doc in inverted_index[term].keys():
 			inverted_index[term][doc] = 0.5 + 0.5 * (inverted_index[term][doc]/max_f[term])
