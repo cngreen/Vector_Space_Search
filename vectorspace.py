@@ -145,13 +145,11 @@ def calc_probabilistic_idf(inverted_index, NDocs):
 
 	return prob_idf
 #---------------------------------------------------------------------------
-def find_doc_tfidf(inverted_index, NDocs):
+def find_doc_tfidf(inverted_index, idf):
 	# doc_tfidf is a matrix of the document vectors
 	# doc_tfidf {key = docID; value = dictionary of terms}
 	# in term dictionary {key = term; value = tf-idf}
 	doc_tfidf = {}
-
-	idf = calc_inverse_document_frequency(inverted_index, NDocs)
 
 	for term in inverted_index.keys():
 		for doc in inverted_index[term].keys():
@@ -221,7 +219,7 @@ def main():
 	inverted_index = {}
 
 	# VALID WEIGHTING SCHEMES:
-	# docs: tfidf, normalized
+	# docs: tfidf, enhanced
 	# query: tfidf, probabilistic
 	weighting_scheme_docs = ''
 	weighting_scheme_query = ''
@@ -244,8 +242,8 @@ def main():
 
 	if (weighting_scheme_query.lower() != 'tfidf' and weighting_scheme_query.lower() != 'probabilistic'):
 		sys.exit("ERROR: invalid query weighting scheme, choose tfidf or probabilistic")
-	if (weighting_scheme_docs.lower() != 'tfidf' and weighting_scheme_docs.lower() != 'normalized'):
-		sys.exit("ERROR: invalid document weighting scheme, choose tfidf or normalized")
+	if (weighting_scheme_docs.lower() != 'tfidf' and weighting_scheme_docs.lower() != 'enhanced'):
+		sys.exit("ERROR: invalid document weighting scheme, choose tfidf or enhanced")
 	# *** STEP ONE: ----------------------------------------------------------
 	# open the folder containing the data collection, provided as the third argument on the command
 	# line (e.g., cranfieldDocs/), and read one file at a time from this folder
@@ -268,15 +266,17 @@ def main():
 	# calculate necessary things for term weighting schemes
 	# if necessary for the term weighting schemes, calculate and store the length of each document
 	if (weighting_scheme_docs.lower() == "tfidf"):
-		doc_tfidf = find_doc_tfidf(inverted_index, docCount)
+		idf = calc_inverse_document_frequency(inverted_index, docCount)
+		doc_tfidf = find_doc_tfidf(inverted_index, idf)
 
-	elif (weighting_scheme_docs.lower() == "normalized"):
+	elif (weighting_scheme_docs.lower() == "enhanced"):
 		# weights the document term frequency using augmented normalized term frequency
 		max_f = find_max_term_frequency(inverted_index)
 		inverted_index = augmented_normalize_term_frequency(inverted_index, max_f)
 
+		idf = calc_probabilistic_idf(inverted_index, docCount)
 		# ntf-idf
-		doc_tfidf = find_doc_tfidf(inverted_index, docCount)
+		doc_tfidf = find_doc_tfidf(inverted_index, idf)
 
 
 	# *** STEP FOUR: ----------------------------------------------------------
@@ -295,7 +295,7 @@ def main():
 		# similarity scores.
 		relDocs = retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, docCount, doc_tfidf)
 
-		print(queryID) # used to see progress of running program
+		#print(queryID) # used to see progress of running program
 
 		for doc in relDocs:
 			output += str(queryID) + ' ' + str(doc[0]) + ' ' + str(doc[1]) + '\n'

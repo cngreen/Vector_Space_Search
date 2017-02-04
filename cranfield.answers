@@ -3,10 +3,10 @@ Document:
 tf-idf: 
 	tf = raw term frequency, the number of times the term is used in the document
 	idf = log(N/n) where N is the total number of documents and n is the documents containing the term
-normalized tf-idf:
+enhanced:
 	tf = normalized term frequency, n-tf = 0.5 + 0.5(tf/max{tf})
-	idf = log(N/n)
-	rationale: normalizing the term frequency gives a less dramatic weighting to documents that have repeated terms
+	idf = log(N-n/n)
+	rationale: normalizing the term frequency gives a less dramatic weighting to documents that have repeated terms; probabilistic inverse collection frequency gives more weight to how rare a search term is
 Query:
 tf-idf:
 	tf = raw term frequency, the number of times the term is used in the query
