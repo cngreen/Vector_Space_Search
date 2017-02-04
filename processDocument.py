@@ -341,8 +341,8 @@ def identifyFormattedNumbers(input):
 		for m in match:
 			m = m.strip()
 			input = re.sub(m, ' ', input)
-			m = m.replace(',','')
-			if m.endswith('.'):
+			m = m.replace(',','') #1,000 and 1000 are the same
+			if m.endswith('.'): #100. and 100 are the same
 				m = m[:-1]
 			tokens.append(m)
 
