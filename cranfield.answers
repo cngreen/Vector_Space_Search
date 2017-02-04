@@ -20,20 +20,36 @@ probabilistic:
 MACRO-AVERAGED PRECISION AND RECALL:
 
 top-10:
-	tfidf-tfidf:
+	tfidf-tfidf: 
+		precision:
+		recall:
 	normalized-probabilistic:
+		precision:
+		recall:
 
 top-50:
-	tfidf-tfidf:
+	tfidf-tfidf: 
+		precision:
+		recall:
 	normalized-probabilistic:
+		precision:
+		recall:
 
 top-100:
-	tfidf-tfidf:
+	tfidf-tfidf: 
+		precision:
+		recall:
 	normalized-probabilistic:
+		precision:
+		recall:
 
 top-500:
-	tfidf-tfidf:
+	tfidf-tfidf: 
+		precision:
+		recall:
 	normalized-probabilistic:
+		precision:
+		recall:
 
 # -------------------------------------------------------------------------------
 WHICH WEIGHTING SCHEME PROVIDES BETTER RESULTS:

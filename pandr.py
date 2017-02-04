@@ -17,6 +17,9 @@ def calculate_precision(rel_docs, my_docs, top):
 		if doc in my_docs:
 			num_relevant += 1.0
 
+	if top > len(my_docs):
+		top = len(my_docs)
+
 	precision = num_relevant/top
 
 	return precision
@@ -33,8 +36,6 @@ def calculate_recall(rel_docs, my_docs, top):
 	return recall
 
 def find_macro_averages(rel_docs, my_docs, x):
-	print('size = ', x)
-
 	total_precision = 0.0
 	total_recall = 0.0
 
@@ -159,31 +160,41 @@ def main():
 	#print(tfidf_docs)
 
 	
-
-	print('my weighting scheme: 10')
-
+	print("\nmine 10")
 	find_macro_averages(rel_docs, my_docs, 10.0)
-
+	print("tfidf 10")
 	find_macro_averages(rel_docs, tfidf_docs, 10.0)
+	# print("enhanced 10")
+	# find_macro_averages(rel_docs, enhanced_docs, 10.0)
+	# print("probabilistic 10")
+	# find_macro_averages(rel_docs, prob_docs, 10.0)
 
-	find_macro_averages(rel_docs, enhanced_docs, 10.0)
-
-	find_macro_averages(rel_docs, prob_docs, 10.0)
-
-
+	print("\nmine 50")
 	find_macro_averages(rel_docs, my_docs, 50.0)
-
+	print("tfidf 50")
 	find_macro_averages(rel_docs, tfidf_docs, 50.0)
+	# print("enhanced 50")
+	# find_macro_averages(rel_docs, enhanced_docs, 50.0)
+	# print("probabilistic 50")
+	# find_macro_averages(rel_docs, prob_docs, 50.0)
 
-	find_macro_averages(rel_docs, enhanced_docs, 50.0)
-
-	find_macro_averages(rel_docs, prob_docs, 50.0)
-
+	print("\nmine 100")
 	find_macro_averages(rel_docs, my_docs, 100.0)
+	print("tfidf 100")
 	find_macro_averages(rel_docs, tfidf_docs, 100.0)
+	# print("enhanced 100")
+	# find_macro_averages(rel_docs, enhanced_docs, 100.0)
+	# print("probabilistic 100")
+	# find_macro_averages(rel_docs, prob_docs, 100.0)
 
+	print("\nmine 500")
 	find_macro_averages(rel_docs, my_docs, 500.0)
+	print("tfidf 500")
 	find_macro_averages(rel_docs, tfidf_docs, 500.0)
+	# print("enhanced 500")
+	# find_macro_averages(rel_docs, enhanced_docs, 500.0)
+	# print("probabilistic 500")
+	# find_macro_averages(rel_docs, prob_docs, 500.0)
 
 
 
