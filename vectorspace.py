@@ -51,8 +51,14 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 			query_index[tokens[index]] += 1.0
 
 	if (weighting_scheme_query.lower() == "tfidf"):
-		# tf is not normalized in class tfidf
-		query_tfidf = find_query_tfidf(query_index, inverted_index, NDocs)
+		# tf is not normalized in classic tfidf
+		idf = calc_inverse_document_frequency(inverted_index, NDocs)
+		query_tfidf = find_query_tfidf(query_index, idf)
+
+	if (weighting_scheme_query.lower() == "probabilistic"):
+		idf = calc_probabilistic_idf(inverted_index, NDocs)
+
+		query_tfidf = find_query_tfidf(query_index, idf)
 
 	# *** STEP TWO:----------------------------------------------------------------
 	# determine the set of documents from the inverted index that include at least 
@@ -106,11 +112,11 @@ def find_max_term_frequency(inverted_index):
 
 	return max_f
 #---------------------------------------------------------------------------
-def normalize_term_frequency(inverted_index, max_f):
-	#normalizes the term frequency for each doc: tf = f/max{f}
+def augmented_normalize_term_frequency(inverted_index, max_f):
+	#normalizes the term frequency for each doc: tf = 0.5 + 0.5 (f/max{f})
 	for term in inverted_index.keys():
 		for doc in inverted_index[term].keys():
-			inverted_index[term][doc] = (inverted_index[term][doc]/max_f[term])
+			inverted_index[term][doc] = 0.5 + 0.5 * (inverted_index[term][doc]/max_f[term])
 
 	return inverted_index
 #---------------------------------------------------------------------------
@@ -122,7 +128,19 @@ def calc_inverse_document_frequency(inverted_index, NDocs):
 	inverse_doc_freq = {}
 	for term in inverted_index.keys():
 		inverse_doc_freq[term] = log10(NDocs/len(inverted_index[term]))
+
 	return inverse_doc_freq
+
+def calc_probabilistic_idf(inverted_index, NDocs):
+	# p-idf = log(N - n/n) where 
+	# N = total number of documents, n = the number of documents containing t
+	prob_idf = {}
+
+	for term in inverted_index.keys():
+		n = len(inverted_index[term])
+		prob_idf[term] = log10((NDocs - n)/n)
+
+	return prob_idf
 #---------------------------------------------------------------------------
 def find_doc_tfidf(inverted_index, NDocs):
 	# doc_tfidf is a matrix of the document vectors
@@ -143,11 +161,9 @@ def find_doc_tfidf(inverted_index, NDocs):
 	return doc_tfidf
 
 #---------------------------------------------------------------------------
-def find_query_tfidf(query_index, inverted_index, NDocs):
+def find_query_tfidf(query_index, idf):
 	# query_tfidf = {key = term; value = tf-idf}
 	# idf is assumed to be 0 for terms not in the document corpus
-	idf = calc_inverse_document_frequency(inverted_index, NDocs)
-
 	query_tfidf = {}
 
 	for term in query_index.keys():
@@ -202,8 +218,8 @@ def main():
 	inverted_index = {}
 
 	# VALID WEIGHTING SCHEMES:
-	# docs: tfidf, 
-	# query: tfidf, 
+	# docs: tfidf, normalized
+	# query: tfidf, probabilistic
 	weighting_scheme_docs = ''
 	weighting_scheme_query = ''
 	input_folder = ''
@@ -221,8 +237,12 @@ def main():
 		input_folder = str(sys.argv[3])
 		query_file = str(sys.argv[4])
 	except:
-		sys.exit("ERROR: input format not correct, expecting: \n [query weighting] [document weighting] [input folder] [query file]")
+		sys.exit("ERROR: input format not correct, expecting: \n [document weighting] [query weighting] [input folder] [query file]")
 
+	if (weighting_scheme_query.lower() != 'tfidf' and weighting_scheme_query.lower() != 'probabilistic'):
+		sys.exit("ERROR: invalid query weighting scheme, choose tfidf or probabilistic")
+	if (weighting_scheme_docs.lower() != 'tfidf' and weighting_scheme_docs.lower() != 'normalized'):
+		sys.exit("ERROR: invalid document weighting scheme, choose tfidf or normalized")
 	# *** STEP ONE: ----------------------------------------------------------
 	# open the folder containing the data collection, provided as the third argument on the command
 	# line (e.g., cranfieldDocs/), and read one file at a time from this folder
@@ -245,6 +265,14 @@ def main():
 	# calculate necessary things for term weighting schemes
 	# if necessary for the term weighting schemes, calculate and store the length of each document
 	if (weighting_scheme_docs.lower() == "tfidf"):
+		doc_tfidf = find_doc_tfidf(inverted_index, docCount)
+
+	elif (weighting_scheme_docs.lower() == "normalized"):
+		# weights the document term frequency using augmented normalized term frequency
+		max_f = find_max_term_frequency(inverted_index)
+		inverted_index = augmented_normalize_term_frequency(inverted_index, max_f)
+
+		# ntf-idf
 		doc_tfidf = find_doc_tfidf(inverted_index, docCount)
 
 

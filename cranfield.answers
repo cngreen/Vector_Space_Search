@@ -1,0 +1,11 @@
+WEIGHTING SCHEMES USED:
+Document:
+tf-idf: 
+	tf = raw term frequency, the number of times the term is used in the document
+	idf = log(N/n) where N is the total number of documents and n is the documents containing the term
+
+Query:
+tf-idf:
+	tf = raw term frequency, the number of times the term is used in the query
+	idf = log(N/n) where N is the total number of documents and n is the documents containing the term
+
