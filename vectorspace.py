@@ -73,7 +73,11 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 	# *** STEP THREE:----------------------------------------------------------------
 	# calculate the similarity between the query and each of the documents in this set, 
 	# using the given weighting schemes to calculate the document and the query term weights.
-	relevant_docs = calc_similarity(query_tfidf, docs_to_search)
+	if (weighting_scheme_docs.lower() == "tfidf"):
+		relevant_docs = calc_similarity(query_tfidf, docs_to_search)
+	elif (weighting_scheme_docs.lower() == "kari"):
+		relevant_docs = cosine_similarity(query_tfidf, docs_to_search)
+
 	sorted_relevant_docs = sorted(relevant_docs.iteritems(), key=operator.itemgetter(1), reverse=True)
 
 	return sorted_relevant_docs
@@ -128,7 +132,7 @@ def calc_inverse_document_frequency(inverted_index, NDocs):
 		inverse_doc_freq[term] = log10(NDocs/len(inverted_index[term]))
 
 	return inverse_doc_freq
-
+#---------------------------------------------------------------------------
 def calc_probabilistic_idf(inverted_index, NDocs):
 	# p-idf = log(N - n/n) where 
 	# N = total number of documents, n = the number of documents containing t
@@ -185,10 +189,39 @@ def calc_similarity(query_tfidf, doc_tfidf):
 	for doc in doc_tfidf.keys():
 
 		for term in query_tfidf.keys():
+			dot_product = 0.0
 			if term in doc_tfidf[doc].keys():
 				dot_product += (query_tfidf[term] * doc_tfidf[doc][term])
 
 		doc_similarity[doc] = dot_product
+
+	return doc_similarity
+#---------------------------------------------------------------------------
+def cosine_similarity(query_tfidf, doc_tfidf):
+	# FROM SALTON ARTICLE equation (6)
+	# length normalized term-weighting system
+	# doc_similarity is a dictionary with:
+	# {key = doc; value = cosine_similarity}
+	doc_similarity = {}
+
+	for doc in doc_tfidf.keys():
+		length_doc = 0
+		dot_product = 0
+		for term in doc_tfidf[doc].keys():
+			# for each term in the document, sum the square of the tf-idf
+			# a^2 + b^2 ...
+			length_doc += pow(doc_tfidf[doc][term], 2)
+
+		for term in query_tfidf.keys():
+			if term in doc_tfidf[doc].keys():
+				dot_product += (query_tfidf[term] * doc_tfidf[doc][term])
+		# if the term is missing from either, dot_product for that term = 0
+
+		if (length_doc != 0):
+			#cosine similarity (dot_product/product of the magnitudes)
+			doc_similarity[doc] = dot_product/sqrt(length_doc)
+		else:
+			doc_similarity[doc] = 0
 
 	return doc_similarity
 #----------------------------------------------------------------------------------------------------------------------------------------
@@ -202,14 +235,13 @@ def main():
 	# query: tfidf, kari
 	weighting_scheme_docs = ''
 	weighting_scheme_query = ''
+
 	input_folder = ''
 	query_file = ''
 
 	output = ''
 
 	docCount = 0
-
-	#print 'Argument List:', str(sys.argv)
 	
 	try: 
 		weighting_scheme_docs = str(sys.argv[1])
@@ -253,8 +285,7 @@ def main():
 		max_f = find_max_term_frequency(inverted_index)
 		inverted_index = augmented_normalize_term_frequency(inverted_index, max_f)
 
-		idf = calc_probabilistic_idf(inverted_index, docCount)
-		# ntf-idf
+		idf = calc_inverse_document_frequency(inverted_index, docCount)
 		doc_tfidf = find_doc_tfidf(inverted_index, idf)
 
 
@@ -274,16 +305,15 @@ def main():
 		# similarity scores.
 		relDocs = retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, docCount, doc_tfidf)
 
-		#print(queryID) # used to see progress of running program
+		print(queryID) # used to see progress of running program
 
 		for doc in relDocs:
 			output += str(queryID) + ' ' + str(doc[0]) + ' ' + str(doc[1]) + '\n'
 
 	#Prepare and print output --------------------------------------------------------------------
 	output_filename = 'cranfield.' + weighting_scheme_docs + '.' + weighting_scheme_query + '.output'
-	#print(output_filename)
-	targetFile = open(output_filename, 'w+')
 
+	targetFile = open(output_filename, 'w+')
 	targetFile.write(output)
 
 

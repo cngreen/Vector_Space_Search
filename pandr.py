@@ -90,7 +90,7 @@ def main():
 	#print (rel_docs)
 
 # GET DATA FROM MY WEIGHTING SCHEME
-	path = os.path.join(os.getcwd(), 'cranfield.enhanced.probabilistic.output')
+	path = os.path.join(os.getcwd(), 'cranfield.kari.kari.output')
 
 	my_docs = {}
 	
@@ -109,7 +109,7 @@ def main():
 
 
 # GET DATA FROM TFIDF WEIGHTING SCHEME
-	path = os.path.join(os.getcwd(), 'cranfield.tfidf.tfidf.output23')
+	path = os.path.join(os.getcwd(), 'cranfield.tfidf.tfidf.output')
 
 	tfidf_docs = {}
 	
@@ -126,7 +126,7 @@ def main():
 
 
 # GET OTHER DATA:
-	path = os.path.join(os.getcwd(), 'cranfield.enhanced.tfidf.output')
+	path = os.path.join(os.getcwd(), 'cranfield.kari.tfidf.output')
 
 	enhanced_docs = {}
 	
@@ -141,7 +141,7 @@ def main():
 		else:
 			enhanced_docs[query_id].append(document)
 
-	path = os.path.join(os.getcwd(), 'cranfield.test.test.output23')
+	path = os.path.join(os.getcwd(), 'cranfield.tfidf.kari.output')
 
 	prob_docs = {}
 	
@@ -157,49 +157,48 @@ def main():
 			prob_docs[query_id].append(document)
 
 
-	#print(tfidf_docs)
 	print('\n')
 	print("tfidf 10")
 	find_macro_averages(rel_docs, tfidf_docs, 10.0)
-	print("mine 10")
+	print("kari.kari 10")
 	find_macro_averages(rel_docs, my_docs, 10.0)
 
-	# print("enhanced 10")
-	# find_macro_averages(rel_docs, enhanced_docs, 10.0)
-	print("probabilistic 10")
+	print("kari.tfidf 10")
+	find_macro_averages(rel_docs, enhanced_docs, 10.0)
+	print("tfidf.kari 10")
 	find_macro_averages(rel_docs, prob_docs, 10.0)
 
 	print('\n')
 	print("tfidf 50")
 	find_macro_averages(rel_docs, tfidf_docs, 50.0)
-	print("mine 50")
+	print("kari.kari 50")
 	find_macro_averages(rel_docs, my_docs, 50.0)
 
-	# print("enhanced 50")
-	# find_macro_averages(rel_docs, enhanced_docs, 50.0)
-	print("probabilistic 50")
+	print("kari.tfidf 50")
+	find_macro_averages(rel_docs, enhanced_docs, 50.0)
+	print("tfidf.kari 50")
 	find_macro_averages(rel_docs, prob_docs, 50.0)
 
 	print('\n')
 	print("tfidf 100")
 	find_macro_averages(rel_docs, tfidf_docs, 100.0)
-	print("mine 100")
+	print("kari.kari 100")
 	find_macro_averages(rel_docs, my_docs, 100.0)
 
-	# print("enhanced 100")
-	# find_macro_averages(rel_docs, enhanced_docs, 100.0)
-	print("probabilistic 100")
+	print("kari.tfidf 100")
+	find_macro_averages(rel_docs, enhanced_docs, 100.0)
+	print("tfidf.kari 100")
 	find_macro_averages(rel_docs, prob_docs, 100.0)
 
 	print('\n')
 	print("tfidf 500")
 	find_macro_averages(rel_docs, tfidf_docs, 500.0)
-	print("mine 500")
+	print("kari.kari 500")
 	find_macro_averages(rel_docs, my_docs, 500.0)
 
-	# print("enhanced 500")
-	# find_macro_averages(rel_docs, enhanced_docs, 500.0)
-	print("probabilistic 500")
+	print("kari.tfidf 500")
+	find_macro_averages(rel_docs, enhanced_docs, 500.0)
+	print("tfidf.kari 500")
 	find_macro_averages(rel_docs, prob_docs, 500.0)
 
 

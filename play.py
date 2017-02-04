@@ -231,9 +231,6 @@ def cosine_similarity(query_tfidf, doc_tfidf):
 			# a^2 + b^2 ...
 			length_doc += pow(doc_tfidf[doc][term], 2)
 
-		if doc == '0051':
-			print(length_doc)
-
 		for term in query_tfidf.keys():
 			if term in doc_tfidf[doc].keys():
 				dot_product += (query_tfidf[term] * doc_tfidf[doc][term])
