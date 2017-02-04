@@ -274,7 +274,7 @@ def main():
 
 	# *** STEP THREE: ----------------------------------------------------------
 	# calculate necessary things for term weighting schemes
-	
+
 	if (weighting_scheme_docs.lower() == "tfidf"):
 		idf = calc_inverse_document_frequency(inverted_index, docCount)
 		doc_tfidf = find_doc_tfidf(inverted_index, idf)
@@ -306,7 +306,7 @@ def main():
 
 		sorted_relDocs = sorted(relDocs.iteritems(), key=operator.itemgetter(1), reverse=True)
 
-		print(queryID) # used to see progress of running program
+		#print(queryID) # used to see progress of running program
 
 		for doc in sorted_relDocs:
 			output += str(queryID) + ' ' + str(doc[0]) + ' ' + str(doc[1]) + '\n'

@@ -1,6 +1,6 @@
 # Kari Green
 # cngreen
-# preprocess.py
+# processDocument.py
 #----------------------------------------
 
 import sys
