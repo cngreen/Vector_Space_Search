@@ -138,7 +138,10 @@ def calc_probabilistic_idf(inverted_index, NDocs):
 
 	for term in inverted_index.keys():
 		n = len(inverted_index[term])
-		prob_idf[term] = log10((NDocs - n)/n)
+		to_log = (NDocs - n)/n
+		if to_log < 1:
+			to_log = 1
+		prob_idf[term] = log10(to_log)
 
 	return prob_idf
 #---------------------------------------------------------------------------

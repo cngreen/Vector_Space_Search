@@ -1,11 +1,40 @@
-WEIGHTING SCHEMES USED:
+DESCRIPTION OF WEIGHTING SCHEMES USED:-------------------------------------------
 Document:
 tf-idf: 
 	tf = raw term frequency, the number of times the term is used in the document
 	idf = log(N/n) where N is the total number of documents and n is the documents containing the term
-
+normalized tf-idf:
+	tf = normalized term frequency, n-tf = 0.5 + 0.5(tf/max{tf})
+	idf = log(N/n)
+	rationale: normalizing the term frequency gives a less dramatic weighting to documents that have repeated terms
 Query:
 tf-idf:
 	tf = raw term frequency, the number of times the term is used in the query
 	idf = log(N/n) where N is the total number of documents and n is the documents containing the term
+probabilistic:
+	tf = raw term frequency
+	prob-idf = log(N-n/n)
+	rationale: rare repeated words in queries, no sense in changing tf, probabilistic inverse collection frequency gives more weight to how rare a search term is
+
+# -------------------------------------------------------------------------------
+MACRO-AVERAGED PRECISION AND RECALL:
+
+top-10:
+	tfidf-tfidf:
+	normalized-probabilistic:
+
+top-50:
+	tfidf-tfidf:
+	normalized-probabilistic:
+
+top-100:
+	tfidf-tfidf:
+	normalized-probabilistic:
+
+top-500:
+	tfidf-tfidf:
+	normalized-probabilistic:
+
+# -------------------------------------------------------------------------------
+WHICH WEIGHTING SCHEME PROVIDES BETTER RESULTS:
 
