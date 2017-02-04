@@ -22,7 +22,7 @@ def indexDocument(input, weighting_scheme_docs, weighting_scheme_query, docID, i
 
 	# *** STEP TWO:----------------------------------------------------------------
 	# add the tokens to the inverted index provided as input and calculate the numbers necessary to
-	# calculate the weights for the given weighting schemes
+	# calculate the weights for the given weighting schemes (raw term frequency)
 	for index in range(len(tokens)):
 		if tokens[index] not in inverted_index.keys():
 			inverted_index[tokens[index]] = {}
@@ -43,7 +43,8 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 	tokens = prepareString(query)
 
 	query_index = {}
-
+	
+	# calculate the weights for the given weighting schemes (raw term frequency)
 	for index in range(len(tokens)):
 		if tokens[index] not in query_index.keys():
 			query_index[tokens[index]] = 1.0
@@ -51,7 +52,6 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 			query_index[tokens[index]] += 1.0
 
 	if (weighting_scheme_query.lower() == "tfidf"):
-		# tf is not normalized in classic tfidf
 		idf = calc_inverse_document_frequency(inverted_index, NDocs)
 		query_tfidf = find_query_tfidf(query_index, idf)
 
@@ -76,11 +76,10 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 	if (weighting_scheme_docs.lower() == "tfidf"):
 		relevant_docs = calc_similarity(query_tfidf, docs_to_search)
 	elif (weighting_scheme_docs.lower() == "kari"):
+		# weight normalized by vector length
 		relevant_docs = cosine_similarity(query_tfidf, docs_to_search)
 
-	sorted_relevant_docs = sorted(relevant_docs.iteritems(), key=operator.itemgetter(1), reverse=True)
-
-	return sorted_relevant_docs
+	return relevant_docs
 
 # *** HELPER FUNCTIONS ***
 #---------------------------------------------------------------------------
@@ -275,7 +274,7 @@ def main():
 
 	# *** STEP THREE: ----------------------------------------------------------
 	# calculate necessary things for term weighting schemes
-	# if necessary for the term weighting schemes, calculate and store the length of each document
+	
 	if (weighting_scheme_docs.lower() == "tfidf"):
 		idf = calc_inverse_document_frequency(inverted_index, docCount)
 		doc_tfidf = find_doc_tfidf(inverted_index, idf)
@@ -305,9 +304,11 @@ def main():
 		# similarity scores.
 		relDocs = retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_scheme_query, docCount, doc_tfidf)
 
+		sorted_relDocs = sorted(relDocs.iteritems(), key=operator.itemgetter(1), reverse=True)
+
 		print(queryID) # used to see progress of running program
 
-		for doc in relDocs:
+		for doc in sorted_relDocs:
 			output += str(queryID) + ' ' + str(doc[0]) + ' ' + str(doc[1]) + '\n'
 
 	#Prepare and print output --------------------------------------------------------------------
