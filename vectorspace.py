@@ -55,7 +55,7 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 		idf = calc_inverse_document_frequency(inverted_index, NDocs)
 		query_tfidf = find_query_tfidf(query_index, idf)
 
-	if (weighting_scheme_query.lower() == "probabilistic"):
+	if (weighting_scheme_query.lower() == "kari"):
 		idf = calc_probabilistic_idf(inverted_index, NDocs)
 
 		query_tfidf = find_query_tfidf(query_index, idf)
@@ -176,6 +176,22 @@ def find_query_tfidf(query_index, idf):
 	return query_tfidf
 
 #---------------------------------------------------------------------------
+def calc_similarity(query_tfidf, doc_tfidf):
+	# FROM SALTON ARTICLE
+	# similarity = sum (w_query * w_doc)
+
+	doc_similarity = {}
+
+	for doc in doc_tfidf.keys():
+
+		for term in query_tfidf.keys():
+			if term in doc_tfidf[doc].keys():
+				dot_product += (query_tfidf[term] * doc_tfidf[doc][term])
+
+		doc_similarity[doc] = dot_product
+
+	return doc_similarity
+
 def cosine_similarity(query_tfidf, doc_tfidf):
 	# doc_similarity is a dictionary with:
 	# {key = doc; value = cosine_similarity}
@@ -219,8 +235,8 @@ def main():
 	inverted_index = {}
 
 	# VALID WEIGHTING SCHEMES:
-	# docs: tfidf, enhanced
-	# query: tfidf, probabilistic
+	# docs: tfidf, kari
+	# query: tfidf, kari
 	weighting_scheme_docs = ''
 	weighting_scheme_query = ''
 	input_folder = ''
@@ -240,10 +256,10 @@ def main():
 	except:
 		sys.exit("ERROR: input format not correct, expecting: \n [document weighting] [query weighting] [input folder] [query file]")
 
-	if (weighting_scheme_query.lower() != 'tfidf' and weighting_scheme_query.lower() != 'probabilistic'):
-		sys.exit("ERROR: invalid query weighting scheme, choose tfidf or probabilistic")
-	if (weighting_scheme_docs.lower() != 'tfidf' and weighting_scheme_docs.lower() != 'enhanced'):
-		sys.exit("ERROR: invalid document weighting scheme, choose tfidf or enhanced")
+	if (weighting_scheme_query.lower() != 'tfidf' and weighting_scheme_query.lower() != 'kari'):
+		sys.exit("ERROR: invalid query weighting scheme, choose tfidf or kari")
+	if (weighting_scheme_docs.lower() != 'tfidf' and weighting_scheme_docs.lower() != 'kari'):
+		sys.exit("ERROR: invalid document weighting scheme, choose tfidf or kari")
 	# *** STEP ONE: ----------------------------------------------------------
 	# open the folder containing the data collection, provided as the third argument on the command
 	# line (e.g., cranfieldDocs/), and read one file at a time from this folder
@@ -269,7 +285,7 @@ def main():
 		idf = calc_inverse_document_frequency(inverted_index, docCount)
 		doc_tfidf = find_doc_tfidf(inverted_index, idf)
 
-	elif (weighting_scheme_docs.lower() == "enhanced"):
+	elif (weighting_scheme_docs.lower() == "kari"):
 		# weights the document term frequency using augmented normalized term frequency
 		max_f = find_max_term_frequency(inverted_index)
 		inverted_index = augmented_normalize_term_frequency(inverted_index, max_f)

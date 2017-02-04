@@ -141,7 +141,7 @@ def main():
 		else:
 			enhanced_docs[query_id].append(document)
 
-	path = os.path.join(os.getcwd(), 'cranfield.tfidf.probabilistic.output')
+	path = os.path.join(os.getcwd(), 'cranfield.test.test.output')
 
 	prob_docs = {}
 	
@@ -158,48 +158,49 @@ def main():
 
 
 	#print(tfidf_docs)
+	print('\n')
 	print("tfidf 10")
 	find_macro_averages(rel_docs, tfidf_docs, 10.0)
-	print("\nmine 10")
+	print("mine 10")
 	find_macro_averages(rel_docs, my_docs, 10.0)
 
 	# print("enhanced 10")
 	# find_macro_averages(rel_docs, enhanced_docs, 10.0)
-	# print("probabilistic 10")
-	# find_macro_averages(rel_docs, prob_docs, 10.0)
+	print("probabilistic 10")
+	find_macro_averages(rel_docs, prob_docs, 10.0)
 
-
+	print('\n')
 	print("tfidf 50")
 	find_macro_averages(rel_docs, tfidf_docs, 50.0)
-	print("\nmine 50")
+	print("mine 50")
 	find_macro_averages(rel_docs, my_docs, 50.0)
 
 	# print("enhanced 50")
 	# find_macro_averages(rel_docs, enhanced_docs, 50.0)
-	# print("probabilistic 50")
-	# find_macro_averages(rel_docs, prob_docs, 50.0)
+	print("probabilistic 50")
+	find_macro_averages(rel_docs, prob_docs, 50.0)
 
-
+	print('\n')
 	print("tfidf 100")
 	find_macro_averages(rel_docs, tfidf_docs, 100.0)
-	print("\nmine 100")
+	print("mine 100")
 	find_macro_averages(rel_docs, my_docs, 100.0)
 
 	# print("enhanced 100")
 	# find_macro_averages(rel_docs, enhanced_docs, 100.0)
-	# print("probabilistic 100")
-	# find_macro_averages(rel_docs, prob_docs, 100.0)
+	print("probabilistic 100")
+	find_macro_averages(rel_docs, prob_docs, 100.0)
 
-	
+	print('\n')
 	print("tfidf 500")
 	find_macro_averages(rel_docs, tfidf_docs, 500.0)
-	print("\nmine 500")
+	print("mine 500")
 	find_macro_averages(rel_docs, my_docs, 500.0)
 
 	# print("enhanced 500")
 	# find_macro_averages(rel_docs, enhanced_docs, 500.0)
-	# print("probabilistic 500")
-	# find_macro_averages(rel_docs, prob_docs, 500.0)
+	print("probabilistic 500")
+	find_macro_averages(rel_docs, prob_docs, 500.0)
 
 
 
