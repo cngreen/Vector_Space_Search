@@ -56,6 +56,8 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 		query_tfidf = find_query_tfidf(query_index, idf)
 
 	if (weighting_scheme_query.lower() == "kari"):
+		max_f = find_max_term_frequency(query_index)
+		query_index = augmented_normalize_term_frequency(query_index, max_f)
 		idf = calc_probabilistic_idf(inverted_index, NDocs)
 		query_tfidf = find_query_tfidf(query_index, idf)
 
@@ -73,11 +75,7 @@ def retrieveDocuments(query, inverted_index, weighting_scheme_docs, weighting_sc
 	# *** STEP THREE:----------------------------------------------------------------
 	# calculate the similarity between the query and each of the documents in this set, 
 	# using the given weighting schemes to calculate the document and the query term weights.
-	if (weighting_scheme_docs.lower() == "tfidf"):
-		relevant_docs = calc_similarity(query_tfidf, docs_to_search)
-	elif (weighting_scheme_docs.lower() == "kari"):
-		# weight normalized by vector length
-		relevant_docs = cosine_similarity(query_tfidf, docs_to_search)
+	relevant_docs = cosine_similarity(query_tfidf, docs_to_search)
 
 	return relevant_docs
 
@@ -97,29 +95,24 @@ def prepareString(input):
 
 	return tokens
 #---------------------------------------------------------------------------
-def find_max_term_frequency(inverted_index):
-	# for each term in the inverted_index:
-	# finds the highest number of occurences of the term in a single document within the collection
+def find_max_term_frequency(query_index):
+	# for each term in the query_index:
+	# finds the highest number of occurences of the term
 	# max_f {key = term; value = max occurrences}
-	max_f = {}
 
-	for key in inverted_index.keys():
-		max = 0
-		for doc in inverted_index[key]:
-			if max < inverted_index[key][doc]:
-				max = inverted_index[key][doc]
-		
-		max_f[key] = max
+	max = 0
+	for key in query_index.keys():
+		if max < query_index[key]:
+			max = query_index[key]
 
-	return max_f
+	return max
 #---------------------------------------------------------------------------
-def augmented_normalize_term_frequency(inverted_index, max_f):
+def augmented_normalize_term_frequency(query_index, max_f):
 	#normalizes the term frequency for each doc: tf = (f/max{f})
-	for term in inverted_index.keys():
-		for doc in inverted_index[term].keys():
-			inverted_index[term][doc] = 0.5 + 0.5 * (inverted_index[term][doc]/max_f[term])
+	for term in query_index.keys():
+		query_index[term] = 0.5 + 0.5 * (query_index[term]/max_f)
 
-	return inverted_index
+	return query_index
 #---------------------------------------------------------------------------
 def calc_inverse_document_frequency(inverted_index, NDocs):
 	#idf = log10(N/df)
@@ -175,26 +168,6 @@ def find_query_tfidf(query_index, idf):
 			query_tfidf[term] = query_index[term] * idf[term]
 
 	return query_tfidf
-
-#---------------------------------------------------------------------------
-def calc_similarity(query_tfidf, doc_tfidf):
-	# FROM SALTON ARTICLE equation (5)
-	# similarity = sum (w_query * w_doc)
-	# doc_similarity is a dictionary with:
-	# {key = doc; value = cosine_similarity}
-
-	doc_similarity = {}
-
-	for doc in doc_tfidf.keys():
-
-		for term in query_tfidf.keys():
-			dot_product = 0.0
-			if term in doc_tfidf[doc].keys():
-				dot_product += (query_tfidf[term] * doc_tfidf[doc][term])
-
-		doc_similarity[doc] = dot_product
-
-	return doc_similarity
 #---------------------------------------------------------------------------
 def cosine_similarity(query_tfidf, doc_tfidf):
 	# FROM SALTON ARTICLE equation (6)
@@ -280,12 +253,16 @@ def main():
 		doc_tfidf = find_doc_tfidf(inverted_index, idf)
 
 	elif (weighting_scheme_docs.lower() == "kari"):
-		# weights the document term frequency using augmented normalized term frequency
-		max_f = find_max_term_frequency(inverted_index)
-		inverted_index = augmented_normalize_term_frequency(inverted_index, max_f)
+		# remove idf
+		doc_tfidf = {}
 
-		idf = calc_inverse_document_frequency(inverted_index, docCount)
-		doc_tfidf = find_doc_tfidf(inverted_index, idf)
+		for term in inverted_index.keys():
+			for doc in inverted_index[term].keys():
+				if doc not in doc_tfidf.keys():
+					doc_tfidf[doc] =  {}
+					doc_tfidf[doc][term] = inverted_index[term][doc]
+				else:
+					doc_tfidf[doc][term] = inverted_index[term][doc]
 
 
 	# *** STEP FOUR: ----------------------------------------------------------
