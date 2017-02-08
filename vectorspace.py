@@ -108,7 +108,7 @@ def find_max_term_frequency(query_index):
 	return max
 #---------------------------------------------------------------------------
 def augmented_normalize_term_frequency(query_index, max_f):
-	#normalizes the term frequency for each doc: tf = (f/max{f})
+	#normalizes the term frequency for each term: tf = (f/max{f})
 	for term in query_index.keys():
 		query_index[term] = 0.5 + 0.5 * (query_index[term]/max_f)
 

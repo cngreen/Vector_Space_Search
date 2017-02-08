@@ -108,7 +108,7 @@ def find_max_term_frequency(query_index):
 	return max
 #---------------------------------------------------------------------------
 def augmented_normalize_term_frequency(query_index, max_f):
-	#normalizes the term frequency for each doc: tf = (f/max{f})
+	#normalizes the term frequency for each term: tf = (f/max{f})
 	for term in query_index.keys():
 		query_index[term] = 0.5 + 0.5 * (query_index[term]/max_f)
 
@@ -170,28 +170,30 @@ def find_query_tfidf(query_index, idf):
 	return query_tfidf
 #---------------------------------------------------------------------------
 def cosine_similarity(query_tfidf, doc_tfidf):
-	# FROM SALTON ARTICLE equation (6)
-	# length normalized term-weighting system
-	# doc_similarity is a dictionary with:
-	# {key = doc; value = cosine_similarity}
 	doc_similarity = {}
+
+	length_q = 0
+
+	for term in query_tfidf.keys():
+		# for each term in the query, sum the square of the tf-idf
+		# a^2 + b^2 ...
+		length_q += pow(query_tfidf[term], 2)
+
+	length_q = sqrt(length_q)
 
 	for doc in doc_tfidf.keys():
 		length_doc = 0
 		dot_product = 0
 		for term in doc_tfidf[doc].keys():
-			# for each term in the document, sum the square of the tf-idf
-			# a^2 + b^2 ...
 			length_doc += pow(doc_tfidf[doc][term], 2)
+		length_doc = sqrt(length_doc)
 
 		for term in query_tfidf.keys():
 			if term in doc_tfidf[doc].keys():
 				dot_product += (query_tfidf[term] * doc_tfidf[doc][term])
-		# if the term is missing from either, dot_product for that term = 0
 
-		if (length_doc != 0):
-			#cosine similarity (dot_product/product of the magnitudes)
-			doc_similarity[doc] = dot_product/sqrt(length_doc)
+		if (length_q != 0 and length_doc != 0):
+			doc_similarity[doc] = dot_product/(length_q * length_doc)
 		else:
 			doc_similarity[doc] = 0
 
